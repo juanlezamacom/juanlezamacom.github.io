@@ -1647,7 +1647,6 @@
     }
 </style>
 
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0MWZW2L324"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -1658,14 +1657,12 @@
 
 </head>
 <body>
-    <!-- Viral Banner -->
     <div class="viral-banner">
         <div class="container">
             <p class="viral-text">🔥 ¡TRENDING! #JuanLezama en Spotify Global • Nuevo sencillo "Cual Ruiseñor" disponible ya • Tour 2026 agotando entradas</p>
         </div>
     </div>
 
-    <!-- Header -->
     <header id="header">
         <div class="container">
             <div class="header-container">
@@ -1711,7 +1708,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="container">
             <div class="hero-content">
@@ -1789,7 +1785,6 @@
         </div>
     </section>
 
-    <!-- About Section -->
     <section class="about" id="about">
         <div class="container">
             <div class="section-title">
@@ -1841,7 +1836,6 @@
         </div>
     </section>
 
-    <!-- Music Player Section -->
     <section class="music-player" id="music">
         <div class="container">
             <div class="section-title">
@@ -1900,8 +1894,7 @@
                 
                 <div class="player-body">
                     <div class="tracks-list">
-                        <!-- Las pistas se generarán dinámicamente con JavaScript -->
-                    </div>
+                        </div>
                     
                     <div class="player-controls">
                         <div class="progress-bar" id="progressBar">
@@ -1938,7 +1931,6 @@
         </div>
     </section>
 
-    <!-- Video Section -->
     <section class="video-section" id="video">
         <div class="container">
             <div class="section-title">
@@ -1952,7 +1944,7 @@
                 </div>
                 
                 <div class="video-info">
-                    <h3>MEZTIZO Tour 2026 - Trailer Oficial</h3>
+                    <h3>- MEZTIZO Tour 2026 -</h3>
                     <p>La gira más grande de mi carrera recorre los lugares más emblemáticos de Venezuela. Una producción audiovisual que combina tecnología de punta con la autenticidad de nuestros ritmos tradicionales. Con invitados especiales y sorpresas en cada presentación.</p>
                     
                     <div class="video-stats">
@@ -1998,7 +1990,6 @@
         </div>
     </section>
 
-    <!-- Gallery Section -->
     <section class="gallery" id="gallery">
         <div class="container">
             <div class="section-title">
@@ -2064,7 +2055,6 @@
         </div>
     </section>
 
-    <!-- Parallax Section -->
     <section class="parallax">
         <div class="parallax-overlay"></div>
         <div class="parallax-content">
@@ -2076,7 +2066,6 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
     <section class="newsletter" id="contact">
         <div class="container">
             <div class="newsletter-container">
@@ -2111,7 +2100,6 @@
         </div>
     </section>
 
-    <!-- Band Section -->
     <section class="band">
         <div class="container">
             <div class="band-container">
@@ -2135,7 +2123,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -2227,7 +2214,6 @@
         </div>
     </footer>
 
-    <!-- Audio Player -->
     <audio id="audioPlayer"></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
@@ -2416,7 +2402,8 @@
     }
 
     // Función para reproducir una pista
-    function playTrack(index) {
+    // MODIFICADO: Acepta parámetro autoPlay para evitar error al cargar
+    function playTrack(index, autoPlay = true) {
         currentTrackIndex = index;
         
         // Actualizar estado visual
@@ -2442,18 +2429,27 @@
             }
         });
         
-        // Establecer fuente de audio y reproducir
+        // Establecer fuente de audio
         audioPlayer.src = tracks[index].audioUrl;
-        audioPlayer.play()
-            .then(() => {
-                isPlaying = true;
-                updatePlayPauseButton();
-                updateTrackPlayButtons();
-            })
-            .catch(error => {
-                console.error('Error al reproducir:', error);
-                alert('No se pudo cargar la canción. Por favor, verifica la URL del audio.');
-            });
+
+        // MODIFICADO: Solo reproducir si autoPlay es true
+        if (autoPlay) {
+            audioPlayer.play()
+                .then(() => {
+                    isPlaying = true;
+                    updatePlayPauseButton();
+                    updateTrackPlayButtons();
+                })
+                .catch(error => {
+                    console.error('Error al reproducir:', error);
+                    alert('No se pudo cargar la canción. Por favor, verifica la URL del audio.');
+                });
+        } else {
+            // Si no es autoplay, nos aseguramos de que la UI muestre "pausa" (listo para tocar)
+            isPlaying = false;
+            updatePlayPauseButton();
+            updateTrackPlayButtons();
+        }
     }
 
     // Función para pausar la reproducción
@@ -2554,14 +2550,16 @@
         if (isPlaying) {
             pauseTrack();
         } else {
-            if (audioPlayer.src) {
+            // Si el audio ya tiene fuente pero estaba pausado, reanudamos
+            if (audioPlayer.src && audioPlayer.currentTime > 0) {
                 audioPlayer.play();
                 isPlaying = true;
+                updatePlayPauseButton();
+                updateTrackPlayButtons();
             } else {
-                playTrack(currentTrackIndex);
+                // Si es la primera vez o src cambió, cargamos con autoplay true
+                playTrack(currentTrackIndex, true);
             }
-            updatePlayPauseButton();
-            updateTrackPlayButtons();
         }
     });
 
@@ -2606,7 +2604,8 @@
 
     // Inicializar
     generateTracks();
-    playTrack(0);
+    // MODIFICADO: false indica que NO debe reproducir automáticamente al cargar
+    playTrack(0, false); 
 
     // Newsletter Form Principal
     const newsletterForm = document.getElementById('newsletterForm');
